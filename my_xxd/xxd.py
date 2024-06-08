@@ -10,10 +10,13 @@ arg_cols_action = aparser.add_argument('-c', '--cols', default=16, type=int)
 
 args = aparser.parse_args()
 
-LINE_LENGTH: int = args.cols #pyright: ignore[reportAny]
-if LINE_LENGTH > 256:
+g_args_cols = args.cols #pyright: ignore[reportAny]
+if g_args_cols > 256:
     raise argparse.ArgumentError(arg_cols_action, 'Maximum number bytes per line is 256')
+elif g_args_cols == 0:
+    g_args_cols = 16
 
+LINE_LENGTH = g_args_cols
 
 if __name__ == '__main__':
     infile: str = args.infile #pyright: ignore[reportAny]
@@ -25,7 +28,7 @@ if __name__ == '__main__':
             self.len = len(data)
 
         def __str__(self) -> str: #pyright: ignore[reportImplicitOverride]
-            assert self.len <= LINE_LENGTH or LINE_LENGTH == 0 # data must be up to LINE_LENGTH bytes per line or LINE_LENGTH == 0 (no limit)
+            assert self.len <= LINE_LENGTH # data must be up to LINE_LENGTH bytes per line
 
             # offset
             out = f'{self.offset:08x}' + ":"
@@ -37,7 +40,7 @@ if __name__ == '__main__':
                 out += f'{int(self.data[idx]):02x}'
 
             # padding
-            if (LINE_LENGTH == 0 or LINE_LENGTH == self.len):
+            if (LINE_LENGTH == self.len):
                 pass
             else:
                 out = out.ljust(LINE_LENGTH * 2 + offset_len + LINE_LENGTH // 2)
@@ -61,10 +64,7 @@ if __name__ == '__main__':
         read_count: int = -1
         data: bytes = b''
         while True:
-            if LINE_LENGTH == 0:
-                data = f.read()
-            else:
-                data = f.read(LINE_LENGTH)
+            data = f.read(LINE_LENGTH)
             read_count = len(data)
             if read_count == 0:
                 break
