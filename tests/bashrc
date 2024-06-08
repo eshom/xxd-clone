@@ -1,0 +1,31 @@
+# Sample .bashrc for SUSE Linux
+# Copyright (c) SUSE Software Solutions Germany GmbH
+
+# There are 3 different types of shells in bash: the login shell, normal shell
+# and interactive shell. Login shells read ~/.profile and interactive shells
+# read ~/.bashrc; in our setup, /etc/profile sources ~/.bashrc - thus all
+# settings made here will also take effect in a login shell.
+#
+# NOTE: It is recommended to make language settings in ~/.profile rather than
+# here, since multilingual X sessions would not work properly if LANG is over-
+# ridden in every subshell.
+
+# This is supposed to fix https://github.com/wez/wezterm/issues/4681
+source $HOME/.config/plasma-workspace/env/xcursor_theme.sh
+
+# better readline ble.sh
+[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh --noattach
+
+test -s ~/.alias && . ~/.alias || true
+
+# Atuin initialization
+eval "$(atuin init bash --disable-up-arrow)"
+
+#vi mode
+set -o vi
+
+# Starship init
+eval "$(starship init bash)"
+
+# Part of ble, should be last
+[[ ${BLE_VERSION-} ]] && ble-attach
